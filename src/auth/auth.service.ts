@@ -9,6 +9,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { RegisterDto } from './dto/register.dto';
 import * as bcrypt from 'bcrypt';
 import { LoginDto } from './dto/login.dto';
+import { Role } from '../common/enums/role.enum';
 
 @Injectable()
 export class AuthService {
@@ -32,6 +33,7 @@ export class AuthService {
         name: dto.name,
         email: dto.email,
         password: hash,
+        role: Role.STUDENT,
       },
     });
     return user;
@@ -55,8 +57,13 @@ export class AuthService {
       role: user.role,
     };
 
+    let role: string = 'Estudante';
+    if (user.role === 'ADMIN') role = 'Administrador';
+    else if (user.role === 'LIBRARIAN') role = 'Livreiro';
+    else role = 'Estudante';
     const access_token = await this.jwt.signAsync(payload);
     return {
+      message: 'user logado com sucesso como ' + role,
       access_token,
     };
   }

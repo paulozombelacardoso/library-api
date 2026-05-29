@@ -3,6 +3,9 @@ import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 
+import { Req, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
+
 @Controller('auth')
 export class AuthController {
   constructor(private AuthService: AuthService) {}
@@ -15,6 +18,12 @@ export class AuthController {
   @Post('login')
   login(@Body() dto: LoginDto) {
     return this.AuthService.login(dto);
+  }
+
+  @Get('profile')
+  @UseGuards(JwtAuthGuard)
+  profile(@Req() req: any) {
+    return req.user;
   }
 
   @Get('mostrar')
