@@ -1,0 +1,67 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(STUDENT)
+
+  loans     Loan[]
+
+  createdAt DateTime @default(now())
+}
+
+model Book {
+  id         Int      @id @default(autoincrement())
+  title      String
+  author     String
+  isbn       String   @unique
+
+  quantity   Int
+  available  Int
+
+  loans      Loan[]
+
+  createdAt  DateTime @default(now())
+}
+
+model Loan {
+  id          Int         @id @default(autoincrement())
+
+  userId      Int
+  user        User        @relation(fields: [userId], references: [id])
+
+  bookId      Int
+  book        Book        @relation(fields: [bookId], references: [id])
+
+  status      LoanStatus  @default(PENDING)
+
+  loanDate    DateTime    @default(now())
+  returnDate  DateTime?
+}
+
+enum Role {
+  ADMIN
+  LIBRARIAN
+  STUDENT
+}
+
+enum LoanStatus {
+  PENDING
+  APPROVED
+  RETURNED
+}
