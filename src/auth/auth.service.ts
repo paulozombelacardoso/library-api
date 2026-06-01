@@ -33,7 +33,7 @@ export class AuthService {
         name: dto.name,
         email: dto.email,
         password: hash,
-        role: Role.STUDENT,
+        role: dto.role ?? Role.STUDENT,
       },
     });
     return user;
