@@ -30,12 +30,10 @@ model Book {
   title      String
   author     String
   isbn       String   @unique
-
   quantity   Int
   available  Int
-
+  imageUrl   String?
   loans      Loan[]
-
   createdAt  DateTime @default(now())
 }
 

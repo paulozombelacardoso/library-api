@@ -8,7 +8,9 @@ import {
   Patch,
   Post,
   Query,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/common/guards/roles.guard';
@@ -17,15 +19,17 @@ import { Role } from '../common/enums/role.enum';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
 import { BooksService } from './books.service';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('books')
 export class BooksController {
   constructor(private readonly bookService: BooksService) {}
   @Post()
+  @UseInterceptors(FileInterceptor('image'))
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.LIBRARIAN)
-  createBook(@Body() dto: CreateBookDto) {
-    return this.bookService.createBook(dto);
+  createBook(@Body() dto: CreateBookDto, @UploadedFile() file) {
+    return this.bookService.createBook(dto, file);
   }
 
   @Get()

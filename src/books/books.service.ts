@@ -8,21 +8,36 @@ import { PrismaService } from 'src/prisma/prisma.service';
 
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 
 @Injectable()
 export class BooksService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly cloudinaryService: CloudinaryService,
+  ) {}
 
-  async createBook(dto: CreateBookDto) {
+  async createBook(dto: CreateBookDto, file?: any) {
     try {
+      console.log(dto);
+      //console.log(file);
       const exists = await this.prisma.book.findUnique({
         where: {
           isbn: dto.isbn,
         },
       });
       if (exists) throw new ConflictException('ISBn already exists');
+      let imageUrl: string | null = null;
+      if (file) {
+        const uploadResult: any =
+          await this.cloudinaryService.uploadImage(file);
+        imageUrl = uploadResult['secure_url'];
+      }
       return this.prisma.book.create({
-        data: dto,
+        data: {
+          ...dto,
+          imageUrl,
+        },
       });
     } catch (error) {
       console.log(error);

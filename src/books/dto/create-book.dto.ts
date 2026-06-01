@@ -1,4 +1,5 @@
-import { IsString, IsNotEmpty, IsInt, Min } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsString, IsNotEmpty, IsInt, Min, IsOptional } from 'class-validator';
 
 export class CreateBookDto {
   @IsString()
@@ -13,11 +14,17 @@ export class CreateBookDto {
   @IsNotEmpty()
   isbn: string;
 
+  @Type(() => Number)
   @IsInt()
   @Min(1)
   quantity: number;
 
+  @Type(() => Number)
   @IsInt()
   @Min(0)
   available: number;
+
+  @IsOptional()
+  @IsString()
+  imageUrl?: string;
 }
