@@ -1,4 +1,10 @@
-import { CanActivate, ExecutionContext, Injectable, ForbiddenException, Logger } from '@nestjs/common';
+import {
+  CanActivate,
+  ExecutionContext,
+  Injectable,
+  ForbiddenException,
+  Logger,
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Role } from '../enums/role.enum';
 
@@ -39,17 +45,21 @@ export class RolesGuard implements CanActivate {
 
     // Normalizar role do usuário: UPPERCASE + trim
     const normalizedUserRole = user.role.toString().toUpperCase().trim();
-    
-    this.logger.debug(`[RolesGuard] User role normalizada: ${normalizedUserRole}`);
+
+    this.logger.debug(
+      `[RolesGuard] User role normalizada: ${normalizedUserRole}`,
+    );
     this.logger.debug(`[RolesGuard] Tipo de role: ${typeof user.role}`);
 
     // Comparar com roles requeridas (normalizadas também)
-    const hasRole = requiredRoles.some(role => 
-      role.toUpperCase().trim() === normalizedUserRole
+    const hasRole = requiredRoles.some(
+      (role) => role.toUpperCase().trim() === normalizedUserRole,
     );
 
     if (!hasRole) {
-      this.logger.warn(`Acesso negado. User role: ${normalizedUserRole}, Required: ${requiredRoles}`);
+      this.logger.warn(
+        `Acesso negado. User role: ${normalizedUserRole}, Required: ${requiredRoles}`,
+      );
       throw new ForbiddenException('Permissão insuficiente');
     }
 

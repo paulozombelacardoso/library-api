@@ -25,13 +25,4 @@ export class AuthController {
   profile(@Req() req: any) {
     return req.user;
   }
-
-  @Get('mostrar')
-  Mostrar() {
-    try {
-      return this.AuthService.Mostrar();
-    } catch (error) {
-      console.log('error :', error);
-    }
-  }
 }

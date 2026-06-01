@@ -8,7 +8,7 @@ import { Role } from '../common/enums/role.enum';
 export class BooksController {
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.LIBRARIAN)
   createBook() {
     return 'book created';
   }
