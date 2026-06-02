@@ -20,15 +20,31 @@ import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
 import { BooksService } from './books.service';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
 
 @Controller('books')
 export class BooksController {
   constructor(private readonly bookService: BooksService) {}
   @Post()
-  @UseInterceptors(FileInterceptor('image'))
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.LIBRARIAN)
+  @UseInterceptors(
+    FileInterceptor('image', {
+      storage: diskStorage({
+        destination: (req, file, cb) => {
+          cb(null, '/tmp');
+        },
+        filename: (req, file, cb) => {
+          const uniqueSuffix =
+            Date.now() + '-' + Math.round(Math.random() * 1e9);
+          cb(null, file.fieldname + '-' + uniqueSuffix);
+        },
+      }),
+    }),
+  )
   createBook(@Body() dto: CreateBookDto, @UploadedFile() file) {
+    //console.log('Received file:', file);
+    //console.log('Received dto:', dto);
     return this.bookService.createBook(dto, file);
   }
 
@@ -42,11 +58,26 @@ export class BooksController {
   @Patch(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.LIBRARIAN)
+  @UseInterceptors(
+    FileInterceptor('image', {
+      storage: diskStorage({
+        destination: (req, file, cb) => {
+          cb(null, '/tmp');
+        },
+        filename: (req, file, cb) => {
+          const uniqueSuffix =
+            Date.now() + '-' + Math.round(Math.random() * 1e9);
+          cb(null, file.fieldname + '-' + uniqueSuffix);
+        },
+      }),
+    }),
+  )
   updateBook(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateBookDto,
+    @UploadedFile() file,
   ) {
-    return this.bookService.updateBook(id, dto);
+    return this.bookService.updateBook(id, dto, file);
   }
 
   @Delete(':id')

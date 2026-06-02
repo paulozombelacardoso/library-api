@@ -18,29 +18,51 @@ export class BooksService {
   ) {}
 
   async createBook(dto: CreateBookDto, file?: any) {
+    // eslint-disable-next-line no-useless-catch
     try {
-      console.log(dto);
-      //console.log(file);
       const exists = await this.prisma.book.findUnique({
         where: {
           isbn: dto.isbn,
         },
       });
-      if (exists) throw new ConflictException('ISBn already exists');
+      if (exists) throw new ConflictException('ISBN already exists');
+
       let imageUrl: string | null = null;
+
       if (file) {
-        const uploadResult: any =
-          await this.cloudinaryService.uploadImage(file);
-        imageUrl = uploadResult['secure_url'];
+        const fs = require('fs').promises;
+        const fileBuffer = await fs.readFile(file.path);
+        const fileObj = {
+          buffer: fileBuffer,
+          originalname: file.originalname,
+          mimetype: file.mimetype,
+        };
+
+        // eslint-disable-next-line no-useless-catch
+        try {
+          const uploadResult: any =
+            await this.cloudinaryService.uploadImage(fileObj);
+          imageUrl = uploadResult.secure_url;
+
+          await fs.unlink(file.path).catch(() => {});
+        } catch (uploadError) {
+          throw uploadError;
+        }
+      } else {
+        console.log('No file provided');
       }
-      return this.prisma.book.create({
-        data: {
-          ...dto,
-          imageUrl,
-        },
+
+      const bookData = {
+        ...dto,
+        imageUrl,
+      };
+      const createdBook = await this.prisma.book.create({
+        data: bookData,
       });
+
+      return createdBook;
     } catch (error) {
-      console.log(error);
+      throw error;
     }
   }
 
@@ -71,15 +93,60 @@ export class BooksService {
     }
   }
 
-  async updateBook(id: number, dto: UpdateBookDto) {
+  async updateBook(id: number, dto: UpdateBookDto, file?: any) {
     try {
-      await this.findOne(id);
-      return this.prisma.book.update({
+      console.log('=== Updating Book ===');
+      console.log('Book ID:', id);
+      console.log('DTO:', dto);
+      console.log('File:', file);
+
+      const book = await this.findOne(id);
+      if (!book) throw new NotFoundException('Book not found');
+
+      let imageUrl: string | undefined = undefined;
+
+      if (file) {
+        console.log('File detected, uploading to Cloudinary...');
+        console.log('File path:', file.path);
+
+        const fs = require('fs').promises;
+        const fileBuffer = await fs.readFile(file.path);
+
+        const fileObj = {
+          buffer: fileBuffer,
+          originalname: file.originalname,
+          mimetype: file.mimetype,
+        };
+
+        // eslint-disable-next-line no-useless-catch
+        try {
+          const uploadResult: any =
+            await this.cloudinaryService.uploadImage(fileObj);
+          imageUrl = uploadResult.secure_url;
+
+          // Clean up temp file
+          await fs.unlink(file.path).catch(() => {});
+        } catch (uploadError) {
+          throw uploadError;
+        }
+      }
+
+      const updateData = {
+        ...dto,
+        ...(imageUrl !== undefined && { imageUrl }),
+      };
+
+      console.log('Updating book with data:', updateData);
+      const updatedBook = await this.prisma.book.update({
         where: { id },
-        data: dto,
+        data: updateData,
       });
+
+      console.log('✓ Book updated successfully');
+      return updatedBook;
     } catch (error) {
-      console.log(error);
+      console.error('Error updating book:', error);
+      throw error;
     }
   }
 
