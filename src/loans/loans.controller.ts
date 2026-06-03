@@ -55,4 +55,11 @@ export class LoansController {
   rejectLoans(@Param('id', ParseIntPipe) loanId: number) {
     return this.loansService.rejectLoans(loanId);
   }
+
+  @Patch(':id/return')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN, Role.LIBRARIAN)
+  returnLoans(@Param('id', ParseIntPipe) loanId: number) {
+    return this.loansService.returnLoans(loanId);
+  }
 }
