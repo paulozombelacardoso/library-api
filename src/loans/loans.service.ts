@@ -43,6 +43,59 @@ export class LoansService {
     }
   }
 
+  async findmyloans(userId: number) {
+    try {
+      const loans = await this.prisma.loan.findFirst({
+        where: { userId: userId },
+        include: {
+          book: true,
+        },
+      });
+      if (!loans) throw new NotFoundException('my loans not found');
+      return {
+        id: loans.id,
+        status: loans.status,
+        loanDate: loans.loanDate,
+        title: loans.book.title,
+        author: loans.book.author,
+        isbn: loans.book.isbn,
+        imageUrl: loans.book.imageUrl,
+      };
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async listAllLoans() {
+    try {
+      const loans = await this.prisma.loan.findMany({
+        include: {
+          book: true,
+          user: true,
+        },
+      });
+      if (!loans) throw new NotFoundException('There is not loans');
+      return loans.map((loan) => ({
+        id: loan.id,
+        status: loan.status,
+        loanDate: loan.loanDate,
+        returnDate: loan.returnDate,
+        user: {
+          id: loan.user.id,
+          name: loan.user.name,
+          email: loan.user.email,
+        },
+        book: {
+          id: loan.book.id,
+          title: loan.book.title,
+          author: loan.book.author,
+        },
+      }));
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   async approveLoans(loanId: number) {
     try {
       const loan = await this.prisma.loan.findUnique({

@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   Param,
   ParseIntPipe,
   Patch,
@@ -24,6 +25,22 @@ export class LoansController {
   @Roles(Role.STUDENT)
   requestLoans(@Req() req, @Body('bookId', ParseIntPipe) bookId: number) {
     return this.loansService.requestLoan(req.user.id, bookId);
+  }
+
+  //GET AllLoans
+  @Get()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.STUDENT)
+  listAllLoans() {
+    return this.loansService.listAllLoans();
+  }
+
+  //GET /loans/
+  @Get('my-loans')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.STUDENT)
+  findmyloans(@Req() req) {
+    return this.loansService.findmyloans(req.user.id);
   }
 
   @Patch(':id/approve')
