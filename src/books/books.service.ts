@@ -151,13 +151,18 @@ export class BooksService {
   }
 
   async removerBook(id: number) {
+    // eslint-disable-next-line no-useless-catch
     try {
-      await this.findOne(id);
-      return this.prisma.book.delete({
+      const teste = await this.prisma.book.findUniqueOrThrow({
         where: { id },
       });
+
+      return this.prisma.book.delete({
+        where: { id: teste.id },
+      });
     } catch (error) {
-      console.log(error);
+      throw error;
+      //console.log(error);
     }
   }
 }

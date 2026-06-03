@@ -43,8 +43,6 @@ export class BooksController {
     }),
   )
   createBook(@Body() dto: CreateBookDto, @UploadedFile() file) {
-    //console.log('Received file:', file);
-    //console.log('Received dto:', dto);
     return this.bookService.createBook(dto, file);
   }
 
@@ -53,6 +51,13 @@ export class BooksController {
   @Roles(Role.ADMIN, Role.LIBRARIAN)
   findAllBooks(@Query('page') page = '1', @Query('limit') limit = '10') {
     return this.bookService.findAllBook(Number(page), Number(limit));
+  }
+
+  @Get(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN, Role.LIBRARIAN)
+  findOneBook(@Param('id', ParseIntPipe) id: number) {
+    return this.bookService.findOne(id);
   }
 
   @Patch(':id')
@@ -83,7 +88,7 @@ export class BooksController {
   @Delete(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
-  removerBook(@Param(':id', ParseIntPipe) id: number) {
+  removerBook(@Param('id', ParseIntPipe) id: number) {
     return this.bookService.removerBook(id);
   }
 }

@@ -22,7 +22,7 @@ export class UsersController {
   @Roles(Role.ADMIN)
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
-    console.log(id);
+    //console.log(id);
     return this.userService.findById(Number(id));
   }
 

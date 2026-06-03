@@ -62,4 +62,5 @@ enum LoanStatus {
   PENDING
   APPROVED
   RETURNED
+  REJECTED
 }
