@@ -129,5 +129,7 @@ Todas as rotas utilizam versionamento: \`/api/v1\`
 
   const port = process.env.PORT ?? 3000;
   await app.listen(port);
+  console.log(`Server running at http://localhost:${port}`);
+  console.log(`Swagger Documentation: http://localhost:${port}/api`);
 }
 bootstrap();
