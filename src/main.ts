@@ -110,18 +110,13 @@ Todas as rotas utilizam versionamento: \`/api/v1\`
   });
 
   // Configuração de documentação
-  SwaggerModule.setup('api', app, document, {
+  SwaggerModule.setup('api/docs', app, document, {
     swaggerOptions: {
       // Configurações de UI
       docExpansion: 'list',
       deepLinking: true,
-      presets: [
-        // Presets padrão do Swagger UI
-      ],
-      plugins: [],
+      persistAuthorization: true,
     },
-    customCssUrl: 'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui.min.css',
-    customJs: ['https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui.min.js'],
   });
 
   // Prefixo global de rotas
@@ -130,6 +125,6 @@ Todas as rotas utilizam versionamento: \`/api/v1\`
   const port = process.env.PORT ?? 3000;
   await app.listen(port);
   console.log(`Server running at http://localhost:${port}`);
-  console.log(`Swagger Documentation: http://localhost:${port}/api`);
+  console.log(`Swagger Documentation: http://localhost:${port}/api/docs`);
 }
 bootstrap();
